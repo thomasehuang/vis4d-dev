@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+import os
 from collections.abc import Callable
 from typing import Any
 
@@ -11,7 +12,7 @@ from vis4d.common.typing import MetricLogs
 from vis4d.eval.base import Evaluator
 
 if SCALABEL_AVAILABLE:
-    from scalabel.label.io import load
+    from scalabel.label.io import load, save as scalabel_save
     from scalabel.label.typing import Config, Frame
     from scalabel.label.utils import get_leaf_categories
 else:
@@ -52,7 +53,9 @@ class ScalabelEvaluator(Evaluator):
         Args:
             gather_func (Callable[[Any], Any]): Gather function.
         """
-        all_preds = gather_func(self.frames)
+        all_preds = gather_func(
+            self.frames, tmpdir="/tmp/thhuang_tmp"
+        )  # TODO: remove hack
         if all_preds is not None:
             self.frames = list(itertools.chain(*all_preds))
 
@@ -69,3 +72,7 @@ class ScalabelEvaluator(Evaluator):
     def evaluate(self, metric: str) -> tuple[MetricLogs, str]:
         """Evaluate the dataset."""
         raise NotImplementedError
+
+    def save(self, metric: str, output_dir: str) -> None:
+        """Save all predictions to file at the end of an epoch."""
+        scalabel_save(os.path.join(output_dir, "predictions.json"), self.frames)

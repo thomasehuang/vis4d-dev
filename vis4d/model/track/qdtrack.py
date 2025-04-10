@@ -531,17 +531,24 @@ class YOLOXQDTrack(nn.Module):
             images_hw=images_hw,
         )
 
-        embeddings, _, _, _ = self.qdtrack_head(features, boxes)
-
-        tracks = self.track_graph(
-            embeddings, boxes, scores, class_ids, frame_ids
+        return TrackOut(
+            boxes=boxes,
+            scores=scores,
+            class_ids=class_ids,
+            track_ids=class_ids,
         )
 
-        for i, boxs in enumerate(tracks.boxes):
-            tracks.boxes[i] = scale_and_clip_boxes(
-                boxs, original_hw[i], images_hw[i]
-            )
-        return tracks
+        # embeddings, _, _, _ = self.qdtrack_head(features, boxes)
+
+        # tracks = self.track_graph(
+        #     embeddings, boxes, scores, class_ids, frame_ids
+        # )
+
+        # for i, boxs in enumerate(tracks.boxes):
+        #     tracks.boxes[i] = scale_and_clip_boxes(
+        #         boxs, original_hw[i], images_hw[i]
+        #     )
+        # return tracks
 
     def __call__(
         self,

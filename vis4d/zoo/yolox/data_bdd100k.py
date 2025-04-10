@@ -176,32 +176,29 @@ def get_train_dataloader(
         BDD100K,
         data_root="data/bdd100k/images/track/train/",
         keys_to_load=(K.images, K.boxes2d),
-        annotation_path="data/bdd100k/labels/box_track_20/train/",
+        annotation_path="data/bdd100k/labels/box_track_5fps_to_1fps/train.json",
         category_map=bdd100k_track_map,
         config_path="box_track",
         image_channel_mode="BGR",
         data_backend=data_backend,
         skip_empty_samples=True,
         cache_as_binary=True,
-        cached_file_path="data/bdd100k/pkl/track_train.pkl",
+        cached_file_path="data/bdd100k/pkl/track_5fps_to_1fps_train.pkl",
     )
 
-    train_dataset_cfg = [
-        class_config(
-            MultiViewDataset,
-            dataset=bdd100k_det_train,
-            sampler=class_config(
-                UniformViewSampler, scope=0, num_ref_samples=1
-            ),
-        ),
-        class_config(
-            MultiViewDataset,
-            dataset=bdd100k_track_train,
-            sampler=class_config(
-                UniformViewSampler, scope=3, num_ref_samples=1
-            ),
-        ),
-    ]
+    bdd100k_1fps_track_train = class_config(
+        BDD100K,
+        data_root="data/bdd100k/images/track_1fps.hdf5",
+        keys_to_load=(K.images, K.boxes2d),
+        annotation_path="data/bdd100k/labels/box_track_1fps/train.json",
+        category_map=bdd100k_track_map,
+        config_path="box_track",
+        image_channel_mode="BGR",
+        data_backend=data_backend,
+        skip_empty_samples=True,
+        cache_as_binary=True,
+        cached_file_path="data/bdd100k/pkl/track_1fps_train.pkl",
+    )
 
     preprocess_transforms, train_batchprocess_cfg = get_train_transforms(
         image_size=image_size, normalize_image=normalize_image
@@ -211,7 +208,11 @@ def get_train_dataloader(
         build_train_dataloader,
         dataset=class_config(
             MultiSampleDataPipe,
-            datasets=train_dataset_cfg,
+            datasets=[
+                bdd100k_det_train,
+                bdd100k_track_train,
+                bdd100k_1fps_track_train,
+            ],
             preprocess_fn=preprocess_transforms,
         ),
         samples_per_gpu=samples_per_gpu,
@@ -231,30 +232,17 @@ def get_test_dataloader(
     workers_per_gpu: int,
 ) -> ConfigDict:
     """Get the default test dataloader for BDD100K tracking."""
-    # test_dataset = class_config(
-    #     BDD100K,
-    #     data_root="data/bdd100k/images/track/val/",
-    #     keys_to_load=(K.images, K.original_images),
-    #     annotation_path="data/bdd100k/labels/box_track_20/val/",
-    #     category_map=bdd100k_track_map,
-    #     config_path="box_track",
-    #     image_channel_mode="BGR",
-    #     data_backend=data_backend,
-    #     cache_as_binary=True,
-    #     cached_file_path="data/bdd100k/pkl/track_val.pkl",
-    # )
-
     test_dataset = class_config(
         BDD100K,
-        data_root="data/bdd100k/images/track/test/",
+        data_root="data/bdd100k/images/track/val/",
         keys_to_load=(K.images, K.original_images),
-        annotation_path="data/bdd100k/labels/box_track_20/test/",
+        annotation_path="data/bdd100k/labels/box_track_20/val/",
         category_map=bdd100k_track_map,
         config_path="box_track",
         image_channel_mode="BGR",
         data_backend=data_backend,
         cache_as_binary=True,
-        cached_file_path="data/bdd100k/pkl/track_test.pkl",
+        cached_file_path="data/bdd100k/pkl/track_val.pkl",
     )
 
     test_preprocess_cfg, test_batchprocess_cfg = get_test_transforms(
@@ -274,7 +262,7 @@ def get_test_dataloader(
     )
 
 
-def get_bdd100k_track_cfg(
+def get_bdd100k_det_cfg(
     data_backend: None | ConfigDict = None,
     image_size: tuple[int, int] = (800, 1440),
     normalize_image: bool = False,
