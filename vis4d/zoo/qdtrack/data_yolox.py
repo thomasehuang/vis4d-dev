@@ -229,33 +229,35 @@ def get_test_dataloader(
     normalize_image: bool,
     samples_per_gpu: int,
     workers_per_gpu: int,
+    eval_mode: str = "val",
 ) -> ConfigDict:
     """Get the default test dataloader for BDD100K tracking."""
-    test_dataset = class_config(
-        BDD100K,
-        data_root="data/bdd100k/images/track/val/",
-        keys_to_load=(K.images, K.original_images),
-        annotation_path="data/bdd100k/labels/box_track_20/val/",
-        category_map=bdd100k_track_map,
-        config_path="box_track",
-        image_channel_mode="BGR",
-        data_backend=data_backend,
-        cache_as_binary=True,
-        cached_file_path="data/bdd100k/pkl/track_val.pkl",
-    )
-
-    # test_dataset = class_config(
-    #     BDD100K,
-    #     data_root="data/bdd100k/images/track/test/",
-    #     keys_to_load=(K.images, K.original_images),
-    #     annotation_path="data/bdd100k/labels/box_track_20/test/",
-    #     category_map=bdd100k_track_map,
-    #     config_path="box_track",
-    #     image_channel_mode="BGR",
-    #     data_backend=data_backend,
-    #     cache_as_binary=True,
-    #     cached_file_path="data/bdd100k/pkl/track_test.pkl",
-    # )
+    if eval_mode == "val":
+        test_dataset = class_config(
+            BDD100K,
+            data_root="data/bdd100k/images/track/val/",
+            keys_to_load=(K.images, K.original_images),
+            annotation_path="data/bdd100k/labels/box_track_20/val/",
+            category_map=bdd100k_track_map,
+            config_path="box_track",
+            image_channel_mode="BGR",
+            data_backend=data_backend,
+            cache_as_binary=True,
+            cached_file_path="data/bdd100k/pkl/track_val.pkl",
+        )
+    else:
+        test_dataset = class_config(
+            BDD100K,
+            data_root="data/bdd100k/images/track/test/",
+            keys_to_load=(K.images, K.original_images),
+            annotation_path="data/bdd100k/labels/box_track_20/test/",
+            category_map=bdd100k_track_map,
+            config_path="box_track",
+            image_channel_mode="BGR",
+            data_backend=data_backend,
+            cache_as_binary=True,
+            cached_file_path="data/bdd100k/pkl/track_test.pkl",
+        )
 
     test_preprocess_cfg, test_batchprocess_cfg = get_test_transforms(
         image_size=image_size, normalize_image=normalize_image
@@ -280,6 +282,7 @@ def get_bdd100k_track_cfg(
     normalize_image: bool = False,
     samples_per_gpu: int = 2,
     workers_per_gpu: int = 2,
+    eval_mode: str = "val",
 ) -> DataConfig:
     """Get the default config for BDD100K tracking."""
     data = DataConfig()
@@ -298,6 +301,7 @@ def get_bdd100k_track_cfg(
         normalize_image=normalize_image,
         samples_per_gpu=1,
         workers_per_gpu=1,
+        eval_mode=eval_mode,
     )
 
     return data
