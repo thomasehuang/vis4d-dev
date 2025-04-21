@@ -4,16 +4,16 @@
 from __future__ import annotations
 
 from vis4d.config import class_config
-from vis4d.config.common.datasets.bdd100k import CONN_BDD100K_TRACK_EVAL
-from vis4d.config.common.models.yolox import get_yolox_callbacks_cfg
-from vis4d.config.default import get_default_callbacks_cfg
-from vis4d.config.default.data_connectors import CONN_BBOX_2D_TRACK_VIS
 from vis4d.config.typing import ExperimentConfig
 from vis4d.data.io.hdf5 import HDF5Backend
 from vis4d.engine.callbacks import EvaluatorCallback, VisualizerCallback
 from vis4d.engine.connectors import CallbackConnector
 from vis4d.eval.bdd100k import BDD100KTrackEvaluator
 from vis4d.vis.image import BoundingBoxVisualizer
+from vis4d.zoo.base import get_default_callbacks_cfg
+from vis4d.zoo.base.data_connectors import CONN_BBOX_2D_TRACK_VIS
+from vis4d.zoo.base.datasets.bdd100k import CONN_BDD100K_TRACK_EVAL
+from vis4d.zoo.base.models.yolox import get_yolox_callbacks_cfg
 from vis4d.zoo.qdtrack.data_yolox_1fps import get_bdd100k_track_cfg
 from vis4d.zoo.qdtrack.qdtrack_yolox_x_25e_bdd100k import (
     get_config as get_qdtrack_cfg,

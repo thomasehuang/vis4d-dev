@@ -156,8 +156,10 @@ def get_train_dataloader(
     normalize_image: bool,
     samples_per_gpu: int,
     workers_per_gpu: int,
+    version: str = "2020",
 ) -> ConfigDict:
     """Get the default train dataloader for BDD100K tracking."""
+    assert version in {"2020", "2025"}, "Version should be either 2020 or 2025"
     bdd100k_det_train = class_config(
         BDD100K,
         data_root="data/bdd100k/images/100k/train/",
@@ -186,19 +188,27 @@ def get_train_dataloader(
         cached_file_path="data/bdd100k/pkl/track_5fps_to_1fps_train.pkl",
     )
 
-    bdd100k_1fps_track_train = class_config(
-        BDD100K,
-        data_root="data/bdd100k/images/track_1fps.hdf5",
-        keys_to_load=(K.images, K.boxes2d),
-        annotation_path="data/bdd100k/labels/box_track_1fps/train.json",
-        category_map=bdd100k_track_map,
-        config_path="box_track",
-        image_channel_mode="BGR",
-        data_backend=data_backend,
-        skip_empty_samples=True,
-        cache_as_binary=True,
-        cached_file_path="data/bdd100k/pkl/track_1fps_train.pkl",
-    )
+    if version == "2025":
+        bdd100k_1fps_track_train = class_config(
+            BDD100K,
+            data_root="data/bdd100k/images/track_1fps/train/",
+            keys_to_load=(K.images, K.boxes2d),
+            annotation_path="data/bdd100k/labels/box_track_1fps/train.json",
+            category_map=bdd100k_track_map,
+            config_path="box_track",
+            image_channel_mode="BGR",
+            data_backend=data_backend,
+            skip_empty_samples=True,
+            cache_as_binary=True,
+            cached_file_path="data/bdd100k/pkl/track_1fps_train.pkl",
+        )
+        datasets = [
+            bdd100k_det_train,
+            bdd100k_track_train,
+            bdd100k_1fps_track_train,
+        ]
+    else:
+        datasets = [bdd100k_det_train, bdd100k_track_train]
 
     preprocess_transforms, train_batchprocess_cfg = get_train_transforms(
         image_size=image_size, normalize_image=normalize_image
@@ -208,11 +218,7 @@ def get_train_dataloader(
         build_train_dataloader,
         dataset=class_config(
             MultiSampleDataPipe,
-            datasets=[
-                bdd100k_det_train,
-                bdd100k_track_train,
-                bdd100k_1fps_track_train,
-            ],
+            datasets=datasets,
             preprocess_fn=preprocess_transforms,
         ),
         samples_per_gpu=samples_per_gpu,
@@ -245,6 +251,19 @@ def get_test_dataloader(
         cached_file_path="data/bdd100k/pkl/track_val.pkl",
     )
 
+    # test_dataset = class_config(
+    #     BDD100K,
+    #     data_root="data/bdd100k/images/track/test/",
+    #     keys_to_load=(K.images, K.original_images),
+    #     annotation_path="data/bdd100k/labels/box_track_20/test/",
+    #     category_map=bdd100k_track_map,
+    #     config_path="box_track",
+    #     image_channel_mode="BGR",
+    #     data_backend=data_backend,
+    #     cache_as_binary=True,
+    #     cached_file_path="data/bdd100k/pkl/track_test.pkl",
+    # )
+
     test_preprocess_cfg, test_batchprocess_cfg = get_test_transforms(
         image_size=image_size, normalize_image=normalize_image
     )
@@ -268,6 +287,7 @@ def get_bdd100k_det_cfg(
     normalize_image: bool = False,
     samples_per_gpu: int = 2,
     workers_per_gpu: int = 2,
+    version: str = "2020",
 ) -> DataConfig:
     """Get the default config for BDD100K tracking."""
     data = DataConfig()
@@ -278,6 +298,7 @@ def get_bdd100k_det_cfg(
         normalize_image=normalize_image,
         samples_per_gpu=samples_per_gpu,
         workers_per_gpu=workers_per_gpu,
+        version=version,
     )
 
     data.test_dataloader = get_test_dataloader(

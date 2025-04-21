@@ -100,9 +100,14 @@ class FasterRCNNQDTrack(nn.Module):
         )
 
         if weights is not None:
-            load_model_checkpoint(
-                self, weights, map_location="cpu", rev_keys=REV_KEYS
-            )
+            if weights.startswith("mmdet://") or weights.startswith(
+                "bdd100k://"
+            ):
+                load_model_checkpoint(
+                    self, weights, map_location="cpu", rev_keys=REV_KEYS
+                )
+            else:
+                load_model_checkpoint(self, weights, map_location="cpu")
 
     def forward(
         self,
@@ -389,9 +394,14 @@ class YOLOXQDTrack(nn.Module):
         )
 
         if weights is not None:
-            load_model_checkpoint(
-                self, weights, map_location="cpu", rev_keys=YOLOX_REV_KEYS
-            )
+            if weights.startswith("mmdet://") or weights.startswith(
+                "bdd100k://"
+            ):
+                load_model_checkpoint(
+                    self, weights, map_location="cpu", rev_keys=YOLOX_REV_KEYS
+                )
+            else:
+                load_model_checkpoint(self, weights, map_location="cpu")
 
     def forward(
         self,
@@ -531,24 +541,24 @@ class YOLOXQDTrack(nn.Module):
             images_hw=images_hw,
         )
 
-        return TrackOut(
-            boxes=boxes,
-            scores=scores,
-            class_ids=class_ids,
-            track_ids=class_ids,
-        )
-
-        # embeddings, _, _, _ = self.qdtrack_head(features, boxes)
-
-        # tracks = self.track_graph(
-        #     embeddings, boxes, scores, class_ids, frame_ids
+        # return TrackOut(  # TODO: temporary hack to return detection boxes
+        #     boxes=boxes,
+        #     scores=scores,
+        #     class_ids=class_ids,
+        #     track_ids=class_ids,
         # )
 
-        # for i, boxs in enumerate(tracks.boxes):
-        #     tracks.boxes[i] = scale_and_clip_boxes(
-        #         boxs, original_hw[i], images_hw[i]
-        #     )
-        # return tracks
+        embeddings, _, _, _ = self.qdtrack_head(features, boxes)
+
+        tracks = self.track_graph(
+            embeddings, boxes, scores, class_ids, frame_ids
+        )
+
+        for i, boxs in enumerate(tracks.boxes):
+            tracks.boxes[i] = scale_and_clip_boxes(
+                boxs, original_hw[i], images_hw[i]
+            )
+        return tracks
 
     def __call__(
         self,

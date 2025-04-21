@@ -40,7 +40,7 @@ def get_config() -> ExperimentConfig:
     ######################################################
     ##                    General Config                ##
     ######################################################
-    config = get_default_cfg(exp_name="yolox_x_50e_bdd100k")
+    config = get_default_cfg(exp_name="yolox_x_25e_bdd100k25")
     config.checkpoint_period = 5
     config.check_val_every_n_epoch = 5
 
@@ -49,7 +49,7 @@ def get_config() -> ExperimentConfig:
     params.samples_per_gpu = 8  # batch size = 8 GPUs * 8 samples per GPU = 64
     params.workers_per_gpu = 8
     params.lr = 0.001
-    params.num_epochs = 50
+    params.num_epochs = 25
     config.params = params
 
     ######################################################
@@ -61,6 +61,7 @@ def get_config() -> ExperimentConfig:
         data_backend=data_backend,
         samples_per_gpu=params.samples_per_gpu,
         workers_per_gpu=params.workers_per_gpu,
+        version="2025",
     )
 
     ######################################################
@@ -78,7 +79,7 @@ def get_config() -> ExperimentConfig:
     ######################################################
     ##                    OPTIMIZERS                    ##
     ######################################################
-    num_last_epochs, warmup_epochs = 10, 1
+    num_last_epochs, warmup_epochs = 5, 1
     config.optimizers = get_yolox_optimizers_cfg(
         params.lr, params.num_epochs, warmup_epochs, num_last_epochs
     )
@@ -154,7 +155,7 @@ def get_config() -> ExperimentConfig:
         save_last=True,
         save_on_train_epoch_end=True,
         every_n_epochs=config.checkpoint_period,
-        save_top_k=10,
+        save_top_k=5,
         mode="max",
         monitor="step",
     )

@@ -78,6 +78,14 @@ def load_model_checkpoint(
         _load_checkpoint(
             model, weights, map_location, strict=strict, revise_keys=rev_keys
         )
+    elif weights.startswith("ema://"):
+        # Checkpoints of models trained with EMA will be saved with prefix that
+        # needs to be removed before directly loading into a non-EMA model.
+        weights = weights.split("ema://")[-1]
+        rev_keys = [(r"^model\.ema_model\.", "")] + rev_keys
+        _load_checkpoint(
+            model, weights, map_location, strict=strict, revise_keys=rev_keys
+        )
     else:  # pragma: no cover
         _load_checkpoint(
             model, weights, map_location, strict=strict, revise_keys=rev_keys

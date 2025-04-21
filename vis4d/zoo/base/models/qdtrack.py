@@ -159,6 +159,7 @@ def get_qdtrack_yolox_cfg(
     model_type: str,
     use_ema: bool = True,
     weights: str | None = None,
+    only_track_loss: bool = False,
 ) -> tuple[ConfigDict, ConfigDict]:
     """Get QDTrack YOLOX model config."""
     ######################################################
@@ -198,22 +199,24 @@ def get_qdtrack_yolox_cfg(
 
     track_loss = class_config(QDTrackInstanceSimilarityLoss)
 
-    loss = class_config(
-        LossModule,
-        losses=[
+    losses = []
+    if not only_track_loss:
+        losses.append(
             {
                 "loss": class_config(YOLOXHeadLoss, num_classes=num_classes),
                 "connector": class_config(
                     LossConnector, key_mapping=CONN_YOLOX_LOSS_2D
                 ),
-            },
-            {
-                "loss": track_loss,
-                "connector": class_config(
-                    LossConnector, key_mapping=CONN_TRACK_LOSS_2D
-                ),
-            },
-        ],
+            }
+        )
+    losses.append(
+        {
+            "loss": track_loss,
+            "connector": class_config(
+                LossConnector, key_mapping=CONN_TRACK_LOSS_2D
+            ),
+        },
     )
+    loss = class_config(LossModule, losses=losses)
 
     return model, loss

@@ -31,6 +31,7 @@ FVCORE_AVAILABLE = package_available("fvcore")
 WAYMO_AVAILABLE = package_available("waymo")
 NUSCENES_AVAILABLE = package_available("nuscenes")
 SCALABEL_AVAILABLE = package_available("scalabel")
+SCALABEL_EVAL_AVAILABLE = package_available("scalabel_eval")
 BDD100K_AVAILABLE = package_available("bdd100k")
 
 # visualization

@@ -40,7 +40,7 @@ def get_config() -> ExperimentConfig:
     ######################################################
     ##                    General Config                ##
     ######################################################
-    config = get_default_cfg(exp_name="yolox_x_50e_bdd100k")
+    config = get_default_cfg(exp_name="yolox_x_50e_bdd100k25")
     config.checkpoint_period = 5
     config.check_val_every_n_epoch = 5
 
@@ -61,6 +61,7 @@ def get_config() -> ExperimentConfig:
         data_backend=data_backend,
         samples_per_gpu=params.samples_per_gpu,
         workers_per_gpu=params.workers_per_gpu,
+        version="2025",
     )
 
     ######################################################

@@ -43,7 +43,7 @@ def get_train_dataloader(
 
     bdd100k_track_train = class_config(
         BDD100K,
-        data_root="data/bdd100k/images/track_1fps.hdf5",
+        data_root="data/bdd100k/images/track_1fps/train/",
         keys_to_load=(K.images, K.boxes2d),
         annotation_path="data/bdd100k/labels/box_track_1fps/train.json",
         category_map=bdd100k_track_map,
@@ -102,7 +102,7 @@ def get_test_dataloader(
     """Get the default test dataloader for BDD100K tracking."""
     test_dataset = class_config(
         BDD100K,
-        data_root="data/bdd100k/images/track_1fps.hdf5",
+        data_root="data/bdd100k/images/track_1fps/val/",
         keys_to_load=(K.images, K.original_images),
         annotation_path="data/bdd100k/labels/box_track_1fps/val.json",
         category_map=bdd100k_track_map,
@@ -115,7 +115,7 @@ def get_test_dataloader(
 
     # test_dataset = class_config(
     #     BDD100K,
-    #     data_root="data/bdd100k/images/track_1fps.hdf5",
+    #     data_root="data/bdd100k/images/track_1fps/test/",
     #     keys_to_load=(K.images, K.original_images),
     #     annotation_path="data/bdd100k/labels/box_track_1fps/test.json",
     #     category_map=bdd100k_track_map,
